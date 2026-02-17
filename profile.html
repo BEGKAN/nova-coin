@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nova Coin • Профиль</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .profile-header {
+            background: #2a1a3f;
+            border-radius: 60px;
+            padding: 30px;
+            margin: 20px;
+            border: 3px solid #b47aff;
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: #9d4edd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            font-weight: 800;
+            color: white;
+            box-shadow: 0 0 40px #c77dff;
+        }
+        .profile-info { flex: 1; }
+        .profile-name {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 5px;
+            transition: color 0.2s;
+        }
+        .profile-stats {
+            background: #1f1235;
+            border-radius: 40px;
+            padding: 20px;
+            margin: 0 20px 20px;
+        }
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 0;
+            border-bottom: 1px solid #4a2e6a;
+            font-size: 18px;
+        }
+        .stat-row:last-child { border-bottom: none; }
+        .stat-value { color: #ffd966; font-weight: 700; }
+        
+        .profile-actions {
+            display: flex;
+            gap: 15px;
+            margin: 20px;
+            flex-wrap: wrap;
+        }
+        .action-btn {
+            background: #4a2a7a;
+            border: 2px solid #b47aff;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            flex: 1;
+            text-align: center;
+        }
+        
+        /* Модальные окна */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background: #2a1a3f;
+            border-radius: 60px;
+            padding: 30px;
+            width: 85%;
+            border: 4px solid #b47aff;
+        }
+        .modal-title {
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .modal-input {
+            width: 100%;
+            background: #1f1230;
+            border: 2px solid #9d4edd;
+            border-radius: 60px;
+            padding: 18px 25px;
+            color: white;
+            font-size: 18px;
+            margin: 15px 0;
+        }
+        .color-slider-container { text-align: center; }
+        .color-slider {
+            width: 100%;
+            height: 60px;
+            border-radius: 30px;
+            background: linear-gradient(to right, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000);
+            -webkit-appearance: none;
+            margin: 20px 0;
+        }
+        .color-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: white;
+            border: 3px solid #9d4edd;
+            cursor: pointer;
+        }
+        .color-preview {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin: 15px auto;
+            border: 4px solid white;
+        }
+        .upgrade-badge {
+            background: #4a2e6a;
+            border-radius: 40px;
+            padding: 8px 15px;
+            display: inline-block;
+            margin: 5px;
+            border: 1px solid #b47aff;
+        }
+    </style>
+</head>
+<body>
+    <div style="padding: 20px;">
+        <h2 style="display: flex; align-items: center; gap: 10px;">
+            <span class="icon icon-user" style="background: white; width: 32px; height: 32px;"></span>
+            ПРОФИЛЬ
+        </h2>
+    </div>
+
+    <!-- Шапка профиля -->
+    <div class="profile-header">
+        <div class="profile-avatar" id="profileAvatar">И</div>
+        <div class="profile-info">
+            <div class="profile-name" id="profileName">Игрок</div>
+            <div style="color: #bba5ff;">ID: <span id="profileId"></span></div>
+        </div>
+    </div>
+
+    <!-- Статистика -->
+    <div class="profile-stats">
+        <div class="stat-row">
+            <span>📅 Сегодня</span>
+            <span class="stat-value" id="statToday">0 NC</span>
+        </div>
+        <div class="stat-row">
+            <span>⏰ За всё время</span>
+            <span class="stat-value" id="statTotal">0 NC</span>
+        </div>
+        <div class="stat-row">
+            <span>🖱️ Всего кликов</span>
+            <span class="stat-value" id="statClicks">0</span>
+        </div>
+        <div class="stat-row">
+            <span>⚡ Доход/сек</span>
+            <span class="stat-value" id="statPerSec">+0.054</span>
+        </div>
+        <div class="stat-row">
+            <span>👆 Сила клика</span>
+            <span class="stat-value" id="statPerClick">+0.056</span>
+        </div>
+        <div class="stat-row">
+            <span>💥 Шанс крита</span>
+            <span class="stat-value" id="statCrit">10%</span>
+        </div>
+    </div>
+
+    <!-- Улучшения -->
+    <div style="margin: 20px;">
+        <h3>🏆 Улучшения (<span id="upgradesCount">0</span>)</h3>
+        <div id="upgradesList" style="margin-top: 15px; min-height: 50px;">
+            <!-- Сюда будут добавляться купленные улучшения -->
+        </div>
+    </div>
+
+    <!-- Кнопки действий -->
+    <div class="profile-actions">
+        <button class="action-btn" onclick="showChangeName()">✏️ Сменить ник</button>
+        <button class="action-btn" onclick="showColorPicker()">🎨 Цвет ника (100 NC)</button>
+    </div>
+
+    <!-- ПРОМОКОДЫ -->
+    <div style="margin: 20px;">
+        <h3 style="display: flex; align-items: center; gap: 10px;">
+            <span class="icon icon-code" style="background: white; width: 28px; height: 28px;"></span>
+            ПРОМОКОДЫ
+        </h3>
+        
+        <div style="background: #1f1235; border-radius: 40px; padding: 20px; margin-top: 15px;">
+            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                <div class="rating-tab active" style="flex:1; text-align: center;" onclick="switchPromo('activate')">🔑 Активировать</div>
+                <div class="rating-tab" style="flex:1; text-align: center;" onclick="switchPromo('create')">✨ Создать</div>
+            </div>
+            
+            <!-- Активация -->
+            <div id="activatePromo">
+                <input type="text" id="promoCodeInput" class="modal-input" placeholder="Введите промокод">
+                <button class="action-btn" onclick="activatePromoCode()" style="width: 100%;">Активировать</button>
+                <div id="promoMessage" style="margin-top: 15px; color: #b3ffaa; text-align: center;"></div>
+            </div>
+            
+            <!-- Создание -->
+            <div id="createPromo" style="display: none;">
+                <input type="text" id="newPromoName" class="modal-input" placeholder="Название">
+                <input type="number" id="newPromoSum" class="modal-input" placeholder="Сумма NC">
+                <input type="number" id="newPromoActivations" class="modal-input" placeholder="Кол-во активаций">
+                <button class="action-btn" onclick="createPromoCode()" style="width: 100%;">Создать промокод</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно смены ника -->
+    <div id="nameModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-title">✏️ Сменить ник</div>
+            <input type="text" id="newNameInput" class="modal-input" placeholder="Новый ник">
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button class="action-btn" onclick="changeName()">Сохранить</button>
+                <button class="action-btn" style="background: #555;" onclick="closeModal('nameModal')">Отмена</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно выбора цвета (радуга) -->
+    <div id="colorModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-title">🌈 Выбери цвет (100 NC)</div>
+            <div class="color-slider-container">
+                <input type="range" id="colorSlider" class="color-slider" min="0" max="360" value="0" oninput="updateColorPreview()">
+                <div class="color-preview" id="colorPreview" style="background: hsl(0, 100%, 50%);"></div>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button class="action-btn" onclick="buyColor()">Купить и применить</button>
+                <button class="action-btn" style="background: #555;" onclick="closeModal('colorModal')">Отмена</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Навигация -->
+    <div class="nav-bar" style="margin-top: 20px;">
+        <a href="index.html" class="nav-item">🏠 Главная</a>
+        <a href="shop.html" class="nav-item">🛒 Магазин</a>
+        <a href="games.html" class="nav-item">🎮 Игры</a>
+        <a href="rating.html" class="nav-item">🏆 Рейтинг</a>
+        <a href="profile.html" class="nav-item active">👤 Профиль</a>
+    </div>
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="app.js"></script>
+    <script>
+        // Обновление статистики профиля
+        function updateProfileStats() {
+            if (!userData) return;
+            
+            document.getElementById('statToday').textContent = (userData.todayEarned || 0).toFixed(2) + ' NC';
+            document.getElementById('statTotal').textContent = (userData.totalEarned || 0).toFixed(2) + ' NC';
+            document.getElementById('statClicks').textContent = userData.totalClicks || 0;
+            document.getElementById('statPerSec').textContent = '+' + (userData.perSec || 0.054).toFixed(3);
+            document.getElementById('statPerClick').textContent = '+' + ((userData.perClick * userData.clickMultiplier) || 0.056).toFixed(3);
+            document.getElementById('statCrit').textContent = Math.round((userData.critChance || 0.1) * 100) + '%';
+            
+            document.getElementById('profileId').textContent = userData.user_id?.toString().slice(0, 8) || '---';
+            document.getElementById('profileAvatar').textContent = (userData.first_name || 'И').charAt(0).toUpperCase();
+            
+            // Список улучшений
+            let upgradesHtml = '';
+            if (userData.upgrades && userData.upgrades.length > 0) {
+                userData.upgrades.forEach(up => {
+                    upgradesHtml += `<span class="upgrade-badge">${up}</span>`;
+                });
+            } else {
+                upgradesHtml = '<div style="color: #bba5ff;">У вас пока нет улучшений</div>';
+            }
+            document.getElementById('upgradesList').innerHTML = upgradesHtml;
+            document.getElementById('upgradesCount').textContent = userData.upgrades?.length || 0;
+        }
+
+        // Модальные окна
+        window.showChangeName = function() {
+            document.getElementById('nameModal').style.display = 'flex';
+        };
+        
+        window.showColorPicker = function() {
+            document.getElementById('colorModal').style.display = 'flex';
+        };
+        
+        window.closeModal = function(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        };
+        
+        window.changeName = function() {
+            let newName = document.getElementById('newNameInput').value.trim();
+            if (newName) {
+                userData.first_name = newName;
+                updateUI();
+                updateProfileStats();
+                saveUserData();
+                closeModal('nameModal');
+            }
+        };
+        
+        // Цвет (радуга)
+        window.updateColorPreview = function() {
+            let hue = document.getElementById('colorSlider').value;
+            document.getElementById('colorPreview').style.backgroundColor = `hsl(${hue}, 100%, 50%)`;
+        };
+        
+        window.buyColor = function() {
+            if (userData.balance < 100) {
+                alert('❌ Недостаточно NC');
+                return;
+            }
+            let hue = document.getElementById('colorSlider').value;
+            userData.balance -= 100;
+            userData.nameColor = `hsl(${hue}, 100%, 60%)`;
+            updateUI();
+            updateProfileStats();
+            saveUserData();
+            closeModal('colorModal');
+            alert('✅ Цвет изменен!');
+        };
+
+        // Промокоды
+        window.switchPromo = function(type) {
+            document.querySelectorAll('.rating-tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById('activatePromo').style.display = type === 'activate' ? 'block' : 'none';
+            document.getElementById('createPromo').style.display = type === 'create' ? 'block' : 'none';
+        };
+        
+        window.activatePromoCode = function() {
+            let code = document.getElementById('promoCodeInput').value.trim().toUpperCase();
+            // В реальном приложении - запрос к серверу
+            if (code === 'WELCOME') {
+                userData.balance += 100;
+                updateUI();
+                updateProfileStats();
+                saveUserData();
+                document.getElementById('promoMessage').innerHTML = '✅ +100 NC получено!';
+            } else {
+                document.getElementById('promoMessage').innerHTML = '❌ Промокод не найден';
+            }
+        };
+        
+        window.createPromoCode = function() {
+            let name = document.getElementById('newPromoName').value.trim().toUpperCase();
+            let sum = document.getElementById('newPromoSum').value;
+            let acts = document.getElementById('newPromoActivations').value;
+            if (name && sum && acts) {
+                alert(`✅ Промокод ${name} создан!`);
+                document.getElementById('newPromoName').value = '';
+                document.getElementById('newPromoSum').value = '';
+                document.getElementById('newPromoActivations').value = '';
+            } else {
+                alert('Заполните все поля');
+            }
+        };
+
+        // Переопределяем updateUI из app.js чтобы обновлять профиль
+        const originalUpdateUI = window.updateUI;
+        window.updateUI = function() {
+            if (originalUpdateUI) originalUpdateUI();
+            updateProfileStats();
+        };
+
+        // Загрузка
+        document.addEventListener('DOMContentLoaded', () => {
+            let checkInterval = setInterval(() => {
+                if (userData) {
+                    clearInterval(checkInterval);
+                    updateProfileStats();
+                }
+            }, 100);
+        });
+    </script>
+</body>
+</html>

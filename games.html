@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nova Coin • Игры</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .games-menu { padding: 20px; display: flex; flex-direction: column; gap: 25px; }
+        .game-card {
+            background: #2a1a3f;
+            border-radius: 50px;
+            padding: 30px 25px;
+            border: 3px solid #b47aff;
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+        .game-icon {
+            width: 100px; height: 100px; background: #9d4edd;
+            border-radius: 40px; display: flex; align-items: center; justify-content: center;
+            font-size: 48px;
+        }
+        .game-info { flex: 1; }
+        .game-title { font-size: 32px; font-weight: 800; }
+        .game-desc { color: #bba5ff; margin-bottom: 15px; }
+        .enter-btn {
+            background: #9d4edd; padding: 15px 30px; border-radius: 60px;
+            font-size: 22px; font-weight: 700; cursor: pointer; width: fit-content;
+            border: none; color: white;
+        }
+        .game-container { padding: 20px; display: none; }
+        .back-btn {
+            background: #4a2a7a; border: 2px solid #b47aff; padding: 15px 25px;
+            border-radius: 50px; font-size: 20px; cursor: pointer; margin-bottom: 20px;
+            display: inline-flex; align-items: center; gap: 10px; color: white;
+            text-decoration: none;
+        }
+        .lottery-card {
+            background: #2a1a3f; border-radius: 40px; padding: 25px; border: 3px solid #b47aff;
+        }
+        .timer {
+            font-size: 48px; text-align: center; color: #ffb3ff;
+            font-weight: 800; text-shadow: 0 0 20px #ff69ff; margin: 20px 0;
+        }
+        .bet-panel { display: flex; gap: 10px; margin: 20px 0; }
+        .bet-input {
+            flex: 2; background: #1f1230; border: 2px solid #9d4edd;
+            border-radius: 60px; padding: 15px 20px; color: white; font-size: 20px;
+        }
+        .bet-btn {
+            flex: 1; background: #9d4edd; border: none; border-radius: 60px;
+            color: white; font-weight: 700; font-size: 20px; cursor: pointer;
+        }
+        .team-selector { display: flex; gap: 20px; margin: 20px 0; }
+        .team-btn {
+            flex: 1; padding: 25px; border-radius: 50px; font-size: 28px;
+            font-weight: 800; cursor: pointer; text-align: center; transition: all 0.2s;
+            border: 4px solid transparent;
+        }
+        .team-eagle { background: #4a3b9c; }
+        .team-tails { background: #9c3b6b; }
+        .team-btn.selected {
+            transform: scale(1.05); box-shadow: 0 0 40px currentColor;
+        }
+        .team-eagle.selected { background: #6b4fc6; border-color: #ffd966 !important; }
+        .team-tails.selected { background: #c44b8b; border-color: #96ff96 !important; }
+        .team-stats { display: flex; gap: 20px; margin: 20px 0; }
+        .team-stat-box {
+            flex: 1; background: #1f1235; border-radius: 30px; padding: 15px;
+            text-align: center; border: 2px solid #b47aff;
+        }
+        .players-list { max-height: 300px; overflow-y: auto; }
+        .player-bet {
+            background: #1f1235; padding: 15px; border-radius: 50px;
+            margin-bottom: 10px; border: 1px solid #b47aff;
+            display: flex; justify-content: space-between;
+        }
+    </style>
+</head>
+<body>
+    <div style="padding: 20px;">
+        <h2>🎮 ИГРЫ</h2>
+    </div>
+
+    <!-- Меню выбора игры -->
+    <div class="games-menu" id="gamesMenu">
+        <div class="game-card">
+            <div class="game-icon">🎰</div>
+            <div class="game-info">
+                <div class="game-title">Обычная лотерея</div>
+                <div class="game-desc">Все против всех. Чем больше ставка, тем выше шанс!</div>
+                <button class="enter-btn" onclick="enterGame('regular')">Зайти</button>
+            </div>
+        </div>
+
+        <div class="game-card">
+            <div class="game-icon">⚔️</div>
+            <div class="game-info">
+                <div class="game-title">Орёл vs Решка</div>
+                <div class="game-desc">Выбери команду и ставь сколько хочешь! Победители делят банк.</div>
+                <button class="enter-btn" onclick="enterGame('team')">Зайти</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Обычная лотерея -->
+    <div id="regularGame" class="game-container">
+        <a href="games.html" class="back-btn">← Назад к играм</a>
+        <div class="lottery-card">
+            <div class="timer" id="regularTimer">00:00</div>
+            <div style="text-align: center; font-size: 24px;">Банк: <span id="regularPot">0</span> NC</div>
+            <div class="bet-panel">
+                <input type="number" id="regularBetAmount" class="bet-input" placeholder="Ставка" min="1">
+                <button class="bet-btn" onclick="placeRegularBet()">Поставить</button>
+            </div>
+            <div class="players-list" id="regularPlayers"></div>
+            <div id="regularWinner" style="background: #b47aff; padding:20px; border-radius:40px; display:none;"></div>
+        </div>
+    </div>
+
+    <!-- Командная лотерея -->
+    <div id="teamGame" class="game-container">
+        <a href="games.html" class="back-btn">← Назад к играм</a>
+        <div class="lottery-card">
+            <div class="timer" id="teamTimer">00:00</div>
+            
+            <div class="team-selector">
+                <div class="team-btn team-eagle" id="eagleBtn" onclick="selectTeam('eagle')">🦅 ОРЁЛ</div>
+                <div class="team-btn team-tails" id="tailsBtn" onclick="selectTeam('tails')">🌙 РЕШКА</div>
+            </div>
+
+            <div class="team-stats">
+                <div class="team-stat-box">
+                    <div>🦅 Орёл</div>
+                    <div style="font-size: 24px; color: #ffd966;" id="eaglePot">0</div>
+                    <div id="eagleChance">0%</div>
+                </div>
+                <div class="team-stat-box">
+                    <div>🌙 Решка</div>
+                    <div style="font-size: 24px; color: #ffd966;" id="tailsPot">0</div>
+                    <div id="tailsChance">0%</div>
+                </div>
+            </div>
+
+            <div style="margin: 20px 0; color: #ffd966;" id="selectedTeamDisplay">Выберите команду</div>
+            
+            <div class="bet-panel">
+                <input type="number" id="teamBetAmount" class="bet-input" placeholder="Сумма ставки" min="1">
+                <button class="bet-btn" onclick="placeTeamBet()">Поставить</button>
+            </div>
+
+            <div style="display: flex; gap: 20px;">
+                <div style="flex:1;"><h3>🦅 Орёл</h3><div id="eagleList" class="players-list"></div></div>
+                <div style="flex:1;"><h3>🌙 Решка</h3><div id="tailsList" class="players-list"></div></div>
+            </div>
+
+            <div id="teamWinner" style="background:#b47aff; padding:20px; border-radius:40px; display:none; margin-top:20px;"></div>
+        </div>
+    </div>
+
+    <div class="nav-bar" style="margin-top: 20px;">
+        <a href="index.html" class="nav-item">🏠 Главная</a>
+        <a href="shop.html" class="nav-item">🛒 Магазин</a>
+        <a href="games.html" class="nav-item active">🎮 Игры</a>
+        <a href="rating.html" class="nav-item">🏆 Рейтинг</a>
+        <a href="profile.html" class="nav-item">👤 Профиль</a>
+    </div>
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="app.js"></script>
+    <script>
+        let selectedTeam = null;
+
+        function enterGame(type) {
+            document.getElementById('gamesMenu').style.display = 'none';
+            if (type === 'regular') {
+                document.getElementById('regularGame').style.display = 'block';
+                loadRegularLottery();
+            } else {
+                document.getElementById('teamGame').style.display = 'block';
+                loadTeamLottery();
+                selectedTeam = null;
+                document.getElementById('eagleBtn').classList.remove('selected');
+                document.getElementById('tailsBtn').classList.remove('selected');
+                document.getElementById('selectedTeamDisplay').innerHTML = 'Выберите команду';
+            }
+        }
+
+        window.selectTeam = function(team) {
+            if (window.teamLottery?.eagle_players?.[userId] || window.teamLottery?.tails_players?.[userId]) {
+                alert('Вы уже сделали ставку! Нельзя сменить команду.');
+                return;
+            }
+            selectedTeam = team;
+            document.getElementById('eagleBtn').classList.remove('selected');
+            document.getElementById('tailsBtn').classList.remove('selected');
+            document.getElementById(team === 'eagle' ? 'eagleBtn' : 'tailsBtn').classList.add('selected');
+            document.getElementById('selectedTeamDisplay').innerHTML = 
+                team === 'eagle' ? '🦅 Выбрана команда: ОРЁЛ' : '🌙 Выбрана команда: РЕШКА';
+        };
+
+        window.placeTeamBet = function() {
+            if (!selectedTeam) return alert('Сначала выберите команду!');
+            let amount = parseFloat(document.getElementById('teamBetAmount').value);
+            if (isNaN(amount) || amount < 1) return alert('Минимальная ставка 1 NC');
+            if (amount > userData.balance) return alert('Недостаточно средств');
+
+            // Отправляем ставку на сервер
+            fetch('/api/team_bet', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    user_id: userId,
+                    team: selectedTeam,
+                    amount: amount,
+                    name: userData.name
+                })
+            }).then(res => res.json()).then(data => {
+                if (data.success) {
+                    userData.balance -= amount;
+                    updateUI();
+                    saveUserData();
+                    loadTeamLottery();
+                    document.getElementById('teamBetAmount').value = '';
+                } else {
+                    alert(data.error);
+                }
+            });
+        };
+
+        function loadTeamLottery() {
+            fetch('/api/team_lottery')
+                .then(res => res.json())
+                .then(data => {
+                    window.teamLottery = data;
+                    updateTeamUI();
+                });
+        }
+
+        function updateTeamUI() {
+            let total = teamLottery.eagle_pot + teamLottery.tails_pot;
+            document.getElementById('eaglePot').textContent = teamLottery.eagle_pot.toFixed(2) + ' NC';
+            document.getElementById('tailsPot').textContent = teamLottery.tails_pot.toFixed(2) + ' NC';
+            document.getElementById('eagleChance').textContent = total ? ((teamLottery.eagle_pot/total)*100).toFixed(1) + '%' : '0%';
+            document.getElementById('tailsChance').textContent = total ? ((teamLottery.tails_pot/total)*100).toFixed(1) + '%' : '0%';
+            
+            let eagleHtml = '', tailsHtml = '';
+            for (let id in teamLottery.eagle_players) {
+                eagleHtml += `<div class="player-bet"><span>${teamLottery.eagle_players[id].name}</span><span>${teamLottery.eagle_players[id].bet.toFixed(2)} NC</span></div>`;
+            }
+            for (let id in teamLottery.tails_players) {
+                tailsHtml += `<div class="player-bet"><span>${teamLottery.tails_players[id].name}</span><span>${teamLottery.tails_players[id].bet.toFixed(2)} NC</span></div>`;
+            }
+            document.getElementById('eagleList').innerHTML = eagleHtml || 'Нет ставок';
+            document.getElementById('tailsList').innerHTML = tailsHtml || 'Нет ставок';
+        }
+    </script>
+</body>
+</html>
